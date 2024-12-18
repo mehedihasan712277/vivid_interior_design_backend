@@ -1,19 +1,24 @@
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer')
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
 
+
 //middleware
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.send("Setup is ok")
-})
 
+// multer ====================
+const UPLOADS_FOLDER = "./uploads/"
+
+let upload = multer({
+    dest: UPLOADS_FOLDER
+})
 
 
 
@@ -30,8 +35,20 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
+
+
+        app.get("/", (req, res) => {
+            res.send("Setup is ok")
+        })
+
+        // for multer testing--------------
+        // app.post("/", upload.single("avatar"), (req, res) => {
+        //     res.send("hello world");
+        // })
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
