@@ -36,7 +36,9 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // await client.connect();
-
+        const serviceDb = client.db("vividInteriorDb").collection("service");
+        const blogDb = client.db("vividInteriorDb").collection("blog");
+        const categoryDb = client.db("vividInteriorDb").collection("category");
 
         app.get("/", (req, res) => {
             res.send("Setup is ok")
@@ -46,6 +48,18 @@ async function run() {
         // app.post("/", upload.single("avatar"), (req, res) => {
         //     res.send("hello world");
         // })
+
+
+        app.get("/service", async (req, res) => {
+            const result = await serviceDb.find().toArray();
+            res.send(result);
+        })
+
+        app.post("/service", async (req, res) => {
+            const serviceData = req.body;
+            const result = await serviceDb.insertOne(serviceData);
+            res.send(result);
+        })
 
 
 
