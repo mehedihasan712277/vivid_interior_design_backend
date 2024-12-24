@@ -76,6 +76,25 @@ async function run() {
 
 
 
+        //handle category=================================================================
+        app.get("/category", async (req, res) => {
+            const result = await categoryDb.find().toArray();
+            res.send(result)
+        })
+        app.post("/category", async (req, res) => {
+            const data = req.body;
+            const result = await categoryDb.insertOne(data);
+            res.send(result);
+        })
+        app.delete("/category/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const result = await categoryDb.deleteOne(filter);
+            res.send(result)
+        })
+
+
+
 
         //handle order=====================================================================
         app.post("/order", async (req, res) => {
