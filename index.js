@@ -32,7 +32,7 @@ const upload = multer({
         fileSize: 1000000 // 1mb
     },
     fileFilter: (req, file, cb) => {
-        if (file.mimetype === "image/gif" || file.mimetype === "image/png") {
+        if (file.mimetype === "image/jpg" || file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
             cb(null, true)
         }
         else {
@@ -68,13 +68,44 @@ async function run() {
         const serviceDb = client.db("vividInteriorDB").collection("service");
         const blogDb = client.db("vividInteriorDB").collection("blog");
         const categoryDb = client.db("vividInteriorDB").collection("category");
+        const orderDb = client.db("vividInteriorDB").collection("order");
 
         app.get("/", (req, res) => {
             res.send("Setup is ok")
         })
 
 
-        // handle service------------------
+
+
+        //handle order=====================================================================
+        app.post("/order", async (req, res) => {
+            const info = req.body;
+            const data = { ...info, status: "placed" }
+            const result = await orderDb.insertOne(data);
+            res.send(result);
+        })
+        app.get("/order", async (req, res) => {
+            const result = await orderDb.find().toArray();
+            res.send(result);
+        })
+        app.delete("/order/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const result = await orderDb.deleteOne(filter);
+            res.send(result);
+        })
+        app.put("/order/:id", async (req, res) => {
+            const id = req.params.id;
+            const result = await orderDb.updateOne(
+                { _id: new ObjectId(id) },
+                { $set: { status: "completed" } }
+            );
+            res.send(result);
+        })
+
+
+
+        // handle service===================================================================
         app.get("/service", async (req, res) => {
             const result = await serviceDb.find().toArray();
             res.send(result);
@@ -87,9 +118,15 @@ async function run() {
             res.send(result);
         })
 
-        app.post("/service", async (req, res) => {
-            const serviceData = req.body;
-            const result = await serviceDb.insertOne(serviceData);
+        app.post("/service", upload.single("file"), async (req, res) => {
+            const { title, description } = req.body;
+            const file = req.file || "";
+            const data = {
+                title: title,
+                bannerImg: file.path || "",
+                description: description
+            }
+            const result = await serviceDb.insertOne(data);
             res.send(result);
         })
 
@@ -100,12 +137,19 @@ async function run() {
             res.send(result);
         })
 
-        // handle file upload-----------------
-        app.post("/", upload.single("avatar"), (req, res) => {
-            res.send("hello world");
+
+
+
+        // handle file upload=============================================================
+        app.post("/img", upload.single("avatar"), (req, res) => {
+            res.send(req.file);
         })
 
-        //error handling---------------
+
+
+
+
+        //error handling==================================================================
         app.use((err, req, res, next) => {
             if (err) {
                 if (err instanceof multer.MulterError) {
