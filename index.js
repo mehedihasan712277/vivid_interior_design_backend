@@ -69,10 +69,31 @@ async function run() {
         const blogDb = client.db("vividInteriorDB").collection("blog");
         const categoryDb = client.db("vividInteriorDB").collection("category");
         const orderDb = client.db("vividInteriorDB").collection("order");
+        const linkDb = client.db("vividInteriorDB").collection("link");
 
         app.get("/", (req, res) => {
             res.send("Setup is ok")
         })
+
+
+        //handle link=====================================================================
+        app.get("/links", async (req, res) => {
+            const result = await linkDb.find().toArray();
+            res.send(result)
+        })
+        app.post("/links", async (req, res) => {
+            const data = req.body;
+            const result = await linkDb.insertOne(data);
+            res.send(result);
+        })
+        app.delete("/links/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const result = await linkDb.deleteOne(filter);
+            res.send(result);
+        })
+
+
 
 
 
