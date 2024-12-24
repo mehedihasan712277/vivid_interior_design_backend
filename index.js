@@ -105,6 +105,44 @@ async function run() {
 
 
 
+
+
+
+
+        //handle blog======================================================================
+        app.get("/blog", async (req, res) => {
+            const result = await blogDb.find().toArray();
+            res.send(result);
+        })
+        app.get("/blog/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const result = await blogDb.findOne(filter);
+            res.send(result);
+        })
+        app.post("/blog", async (req, res) => {
+            const data = req.body;
+            const result = await blogDb.insertOne(data);
+            res.send(result)
+        })
+        app.put("/blog/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            //this is incomplete------------------------
+        })
+        app.delete("/blog/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const result = blogDb.deleteOne(filter);
+            res.send(result)
+        })
+
+
+
+
+
+
+
         // handle service===================================================================
         app.get("/service", async (req, res) => {
             const result = await serviceDb.find().toArray();
@@ -140,10 +178,16 @@ async function run() {
 
 
 
+
+
+
         // handle file upload=============================================================
         app.post("/img", upload.single("avatar"), (req, res) => {
             res.send(req.file);
         })
+
+
+
 
 
 
